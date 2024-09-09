@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <float.h>
+
+// Función para generar un número aleatorio en un rango dado
+double random_double(double min, double max) {
+    return min + (rand() / (double) RAND_MAX) * (max - min);
+}
+
+// Función f(x, y) = (1.5 - x + xy)^2 + (2.25 - x + xy^2)^2
+double function(double x, double y) {
+    double term1 = 1.5 - x + x * y;
+    double term2 = 2.25 - x + x * y * y;
+    return term1 * term1 + term2 * term2;
+}
+
+int main() {
+    srand(time(NULL)); // Inicializa la semilla para números aleatorios
+
+    double x, y;
+    double min_x, min_y;
+    double min_value = DBL_MAX; // Inicializamos con el valor máximo posible
+
+    int iterations = 10000;
+
+    for (int i = 0; i < iterations; i++) {
+        // Genera valores aleatorios en el rango [-4.5, 4.5]
+        x = random_double(-4.5, 4.5);
+        y = random_double(-4.5, 4.5);
+
+        double value = function(x, y);
+
+        if (value < min_value) {
+            min_value = value;
+            min_x = x;
+            min_y = y;
+        }
+    }
+
+    printf("Valores mínimos encontrados:\n");
+    printf("x = %f, y = %f\n", min_x, min_y);
+    printf("Valor mínimo de f(x, y) = %f\n", min_value);
+
+    return 0;
+}
