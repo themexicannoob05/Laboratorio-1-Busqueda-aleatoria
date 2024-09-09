@@ -1,0 +1,140 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define SIZE 4
+
+void Tablero(char tabla[SIZE][SIZE]) {
+//Impresion del tablero
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+
+            printf("%c", tabla[i][j]);
+            if (j < SIZE - 1) printf(" | ");
+        }
+
+        printf("\n");
+
+        if (i < SIZE - 1) {
+            for (int j = 0; j < SIZE - 1; j++) printf("---+");
+            printf("---\n");
+        }
+    }
+
+    printf("\n");
+}
+
+int Ganador(char tabla[SIZE][SIZE], char jugador) {
+    //Checa las filas y columnas buscando si hay 4 seguidas para ver un ganador
+    
+    for (int i = 0; i < SIZE; i++) {
+        int filaganador = 1, columnaganador = 1;
+        for (int j = 0; j < SIZE; j++) {
+            if (tabla[i][j] != jugador) filaganador = 0;
+            if (tabla[j][i] != jugador) columnaganador = 0;
+        }
+        if (filaganador || columnaganador) return 1;
+    }
+    //Checa las 2 diagonales del tablero viendo si estan 4 seguidas para ver si alguien gana
+    
+    int diagonal1 = 1, diagonal2 = 1;
+    for (int i = 0; i < SIZE; i++) {
+        if (tabla[i][i] != jugador) diagonal1 = 0;
+        if (tabla[i][SIZE - 1 - i] != jugador) diagonal2 = 0;
+    }
+
+    return diagonal1 || diagonal2;
+}
+
+int LLeno(char tabla[SIZE][SIZE]) {
+    //Checa si el tablero esta lleno 
+    
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            if (tabla[i][j] == ' ') return 0;
+        }
+    }
+    return 1;
+}
+
+void Movjugador(char tabla[SIZE][SIZE]) {
+    //Movimiento del jugador basandose en la fila y columna que ingrese
+    
+    int fila, columna;
+    while (1) {
+        printf("Introduce la fila y columna donde deseas dejar tu marca (separados por un espacio de 1-4): ");
+        scanf("%d %d", &fila, &columna);
+        if (fila - 1 >= 0 && columna - 1 < SIZE && columna - 1 >= 0 && columna - 1 < SIZE && tabla[fila - 1][columna - 1] == ' ') {
+            tabla[fila - 1][columna - 1] = 'X';
+            break;
+        } else {
+            printf("Movimiento no aceptado, intenta de nuevo.\n");
+        }
+    }
+}
+
+void MovIA(char tabla[SIZE][SIZE]) {
+    //Movimiento de la IA, verifica espacios vacios con un auxiliar y despues hace una seleccion aleatoria de los espacios disponibles
+    int vacio[SIZE * SIZE][2];
+    int aux = 0;
+
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            if (tabla[i][j] == ' ') {
+                vacio[aux][0] = i;
+                vacio[aux][1] = j;
+                aux++;
+            }
+        }
+    }
+
+    if (aux > 0) {
+        int marca = rand() % aux;
+        tabla[vacio[marca][0]][vacio[marca][1]] = 'O';
+    }
+}
+
+int main() {
+    char tabla[SIZE][SIZE];
+    srand(time(0));  // Semilla de generación de números aleatorios
+    
+    //Declaracion de la matriz tablero
+    
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            tabla[i][j] = ' ';
+        }
+    }
+
+    printf("Juego de Gato de 4x4\n");
+    Tablero(tabla); //Impresion tablero
+
+    while (1) {
+        Movjugador(tabla);
+        Tablero(tabla);
+    
+        if (Ganador(tabla, 'X')) { //Revisa si con el tiro del jugador este ya es ganador
+            printf("Tu ganas!\n");
+            break;
+        }
+        if (LLeno(tabla)) { //Revisa si el tablero esta lleno, si es así entonces hay un empate
+            printf("Empate!\n");
+            break;
+        }
+        
+        system("cls");
+        
+        MovIA(tabla);
+        Tablero(tabla);
+        if (Ganador(tabla, 'O')) {
+            printf("La IA gana!\n");
+            break;
+        }
+        if (LLeno(tabla)) {
+            printf("Empate!\n");
+            break;
+        }
+    }
+
+    return 0;
+}
